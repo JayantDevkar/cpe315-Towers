@@ -20,11 +20,28 @@ startstring:
 towers:
    /* Save calllee-saved registers to stack */
    
+   ldr r3, [r0] //copy of numdisc
+   ldr r4, [r1] //copy of start
+   ldr r5, [r2] //copy of goal
+  
+   mov r6, #0 //initialize steps
+   mov r7, #0 //initialize peg
+   mov r8, #0 //intialize temp
+   
    /* Save a copy of all 3 incoming parameters */
 
 if:
    /* Compare numDisks with 2 or (numDisks - 2)*/
    /* Check if less than, else branch to else */
+   
+   comp r3, #2 //comparing 
+   bge else     //branching to else
+   ldr r0,[r1]   //setting up parameters for print
+   ldr r1,[r2]  //setting up parameters for print
+   bl print 
+    
+   mov r0, #1 //return value 1
+   bl endif  //branching endif
    
    /* set print function's start to incoming start */
    /* set print function's end to goal */
@@ -32,6 +49,32 @@ if:
    /* Set return register to 1 */
    /* branch to endif */
 else:
+
+   mov r7, #6 //initialize peg
+   sub r7, r7, r4
+   sub r7, r7, r5
+  
+
+
+   sub r8, r3, #1 //temp
+   ldr r0, [r8] //loading parameters
+   bl towers
+
+   ldr r6, [r0] //steps = return vlaue
+
+   mov r0, #1 //setting the next function call
+   bl towers
+   
+   add r6, r6, r0 //adding the return value to steps
+   ldr r0, [r8]  //intialize parameter
+
+   bl towers
+
+   add r6, r6, r0 //adding the results
+
+   ldr r0, [r6] //loading return 
+
+    
    /* Use a callee-saved varable for temp and set it to 6 */
    /* Subract start from temp and store to itself */
    /* Subtract goal from temp and store to itself (temp = 6 - start - goal)*/
@@ -55,6 +98,7 @@ else:
 
 endif:
    /* Restore Registers */
+   pop {r6, r7, r8, pc}
 
 @ Function main is complete, no modifications needed
     .global	main
